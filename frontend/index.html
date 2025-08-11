@@ -13,6 +13,10 @@
         .sidebar-item-completed { color: #10B981; }
         .sidebar-item-active { background-color: #F3F4F6; font-weight: 600; }
         #output-container pre { white-space: pre-wrap; word-wrap: break-word; }
+        /* Ensure the main content area can scroll independently on small screens */
+        .main-content-scroll {
+            overflow-y: auto;
+        }
     </style>
      <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,43 +24,60 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
-    <div id="app" class="flex h-screen">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 p-5 flex-shrink-0 flex flex-col">
-            <h1 class="text-xl font-bold text-gray-900 mb-6">Python Quick Revision</h1>
-            <nav id="lesson-nav" class="flex-grow overflow-y-auto">
-                <!-- Lesson navigation will be dynamically inserted here -->
-            </nav>
-        </aside>
+    <div class="flex flex-col h-screen">
+        <!-- Header for Mobile -->
+        <header class="flex items-center justify-between p-4 bg-white border-b border-gray-200 lg:hidden">
+            <h1 class="text-xl font-bold text-gray-900">Python Revision</h1>
+            <button id="menu-button" class="p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-6 md:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto">
-            <!-- Left Pane: Lesson and Editor -->
-            <div class="flex flex-col space-y-6">
-                <div id="lesson-content" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <!-- Lesson content will be dynamically inserted here -->
-                </div>
-                <div>
-                    <div id="editor"></div>
-                </div>
-                <div class="flex items-center justify-between">
-                    <button id="run-button" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-colors">
-                        Run & Check
-                    </button>
-                    <button id="next-lesson-button" class="hidden px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition-colors">
-                        Next Lesson
+        <div id="app" class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 p-5 flex-shrink-0 flex-col absolute inset-y-0 left-0 z-30 transform -translate-x-full lg:relative lg:translate-x-0 lg:flex transition-transform duration-300 ease-in-out">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-xl font-bold text-gray-900 hidden lg:block">Python Revision</h1>
+                    <button id="close-menu-button" class="p-2 rounded-md lg:hidden">
+                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-            </div>
+                <nav id="lesson-nav" class="flex-grow overflow-y-auto">
+                    <!-- Lesson navigation will be dynamically inserted here -->
+                </nav>
+            </aside>
 
-            <!-- Right Pane: Output -->
-            <div id="output-container" class="bg-gray-900 text-white p-6 rounded-lg shadow-sm font-mono text-sm flex flex-col">
-                 <h2 class="text-lg font-semibold text-gray-300 border-b border-gray-700 pb-2 mb-4">Output</h2>
-                 <div id="output-content" class="flex-grow overflow-y-auto">
-                    <pre>Welcome! Select a lesson and run your code.</pre>
-                 </div>
-            </div>
-        </main>
+            <!-- Main Content -->
+            <main class="flex-1 p-4 sm:p-6 md:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-8 main-content-scroll">
+                <!-- Left Pane: Lesson and Editor -->
+                <div class="flex flex-col space-y-6">
+                    <div id="lesson-content" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <!-- Lesson content will be dynamically inserted here -->
+                    </div>
+                    <div>
+                        <div id="editor"></div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <button id="run-button" class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-colors">
+                            Run & Check
+                        </button>
+                        <button id="next-lesson-button" class="w-full sm:w-auto hidden px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition-colors">
+                            Next Lesson
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Pane: Output -->
+                <div id="output-container" class="bg-gray-900 text-white p-6 rounded-lg shadow-sm font-mono text-sm flex flex-col h-[50vh] lg:h-auto">
+                     <h2 class="text-lg font-semibold text-gray-300 border-b border-gray-700 pb-2 mb-4">Output</h2>
+                     <div id="output-content" class="flex-grow overflow-y-auto">
+                        <pre>Welcome! Select a lesson and run your code.</pre>
+                     </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script>
@@ -116,8 +137,6 @@
         let editor;
         let currentLessonId = 1;
         let completedLessons = [];
-        // The URL for the backend API. When deployed on Render,
-        // this relative URL will be correctly routed.
         const API_URL = '/execute';
 
         const appState = {
@@ -214,6 +233,10 @@
                 document.getElementById('output-content').innerHTML = '<pre>Your code output will appear here.</pre>';
                 document.getElementById('next-lesson-button').classList.add('hidden');
                 this.renderSidebar();
+                
+                // Close sidebar on mobile after selecting a lesson
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.add('-translate-x-full');
             },
 
             getLessonById(id) {
@@ -225,6 +248,17 @@
             },
 
             attachEventListeners() {
+                const menuButton = document.getElementById('menu-button');
+                const closeMenuButton = document.getElementById('close-menu-button');
+                const sidebar = document.getElementById('sidebar');
+
+                menuButton.addEventListener('click', () => {
+                    sidebar.classList.remove('-translate-x-full');
+                });
+                closeMenuButton.addEventListener('click', () => {
+                     sidebar.classList.add('-translate-x-full');
+                });
+
                 document.getElementById('run-button').addEventListener('click', () => this.runCode());
                 document.getElementById('next-lesson-button').addEventListener('click', () => this.goToNextLesson());
                 document.getElementById('lesson-nav').addEventListener('click', (e) => {
@@ -336,6 +370,3 @@
     </script>
 </body>
 </html>
-
-
-
