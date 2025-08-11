@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Quick Revision</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.33.0/ace.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .ace_editor { height: 300px; width: 100%; border-radius: 0.5rem; border: 1px solid #D1D5DB; }
+        .sidebar-item-locked { color: #9CA3AF; cursor: not-allowed; }
+        .sidebar-item-completed { color: #10B981; }
+        .sidebar-item-active { background-color: #F3F4F6; font-weight: 600; }
+        #output-container pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div id="app" class="flex h-screen">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-72 bg-white border-r border-gray-200 p-5 flex-shrink-0 flex flex-col">
+            <h1 class="text-xl font-bold text-gray-900 mb-6">Python Quick Revision</h1>
+            <nav id="lesson-nav" class="flex-grow overflow-y-auto">
+                <!-- Lesson navigation will be dynamically inserted here -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-8 lg:p-10 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto">
+            <!-- Left Pane: Lesson and Editor -->
+            <div class="flex flex-col space-y-6">
+                <div id="lesson-content" class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <!-- Lesson content will be dynamically inserted here -->
+                </div>
+                <div>
+                    <div id="editor"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button id="run-button" class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-colors">
+                        Run & Check
+                    </button>
+                    <button id="next-lesson-button" class="hidden px-6 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 transition-colors">
+                        Next Lesson
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Pane: Output -->
+            <div id="output-container" class="bg-gray-900 text-white p-6 rounded-lg shadow-sm font-mono text-sm flex flex-col">
+                 <h2 class="text-lg font-semibold text-gray-300 border-b border-gray-700 pb-2 mb-4">Output</h2>
+                 <div id="output-content" class="flex-grow overflow-y-auto">
+                    <pre>Welcome! Select a lesson and run your code.</pre>
+                 </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const curriculum = [
+            {
+                module: "1. Python Fundamentals",
+                lessons: [
+                    { id: 1, title: "Data Types", objective: "Identify and print the type of different data variables.", prompt: "Given the variables `a`, `b`, `c`, and `d`, print the type of each variable on a new line.", starterCode: "a = 10\nb = 3.14\nc = \"Hello\"\nd = True\nprint(type(a))\nprint(type(b))\nprint(type(c))\nprint(type(d))" },
+                    { id: 2, title: "Mutable vs Immutable", objective: "Understand the difference between mutable and immutable types.", prompt: "The code tries to change a character in a string and an element in a list. Add a comment explaining why one line causes an error. Then, fix the code so it creates a new string 'hEllo' and assigns it to `my_string`.", starterCode: "my_string = \"hello\"\nmy_list = [1, 2, 3]\n\n# my_string[1] = 'E' # This fails because strings are immutable in Python.\nmy_list[1] = 99\n\n# Fix the string assignment below\nmy_string = \"hEllo\"\n\nprint(my_string)\nprint(my_list)" },
+                    { id: 3, title: "Membership Operators", objective: "Use `in` and `not in` to check for membership in a sequence.", prompt: "Check if the number 5 is in the `numbers` list and if the letter 'z' is not in the `letters` string. Print the boolean result of each check.", starterCode: "numbers = [1, 3, 5, 7, 9]\nletters = \"abcdefg\"\n\nprint(5 in numbers)\nprint('z' not in letters)" },
+                ]
+            },
+            {
+                module: "2. Control Flow",
+                lessons: [
+                    { id: 4, title: "List Comprehensions", objective: "Use a list comprehension to create a new list based on an existing one.", prompt: "Create a new list called `squares` that contains the square of each number from the `numbers` list, but only if the number is odd.", starterCode: "numbers = [1, 2, 3, 4, 5, 6]\nsquares = [n**2 for n in numbers if n % 2 != 0]\n\nprint(squares)" },
+                    { id: 5, title: "Ternary Expressions", objective: "Use a ternary conditional expression to assign a value to a variable.", prompt: "Assign the string 'even' or 'odd' to the `result` variable based on whether the `number` is even or odd, using a single-line ternary expression.", starterCode: "number = 7\nresult = \"odd\" if number % 2 != 0 else \"even\"\n\nprint(result)" },
+                ]
+            },
+            {
+                module: "3. Functions",
+                lessons: [
+                    { id: 6, title: "Mutable Default Arguments", objective: "Understand and fix the pitfall of using mutable default arguments.", prompt: "The function `add_item` has a bug. When called multiple times, it reuses the same list. Fix the function so that each call without an argument starts with a fresh, empty list.", starterCode: "def add_item(item, items=None):\n    if items is None:\n        items = []\n    items.append(item)\n    return items\n\nprint(add_item(1))\nprint(add_item(2))" },
+                    { id: 7, title: "*args and **kwargs", objective: "Write a function that accepts a variable number of positional and keyword arguments.", prompt: "Complete the function `summarize` to print the number of positional arguments and then each keyword argument and its value.", starterCode: "def summarize(*args, **kwargs):\n    print(f\"Positional args: {len(args)}\")\n    for key, value in kwargs.items():\n        print(f\"{key} = {value}\")\n\nsummarize(1, 2, 3, name=\"Alice\", age=30)" },
+                    { id: 8, title: "Decorators", objective: "Write a simple decorator to modify a function's behavior.", prompt: "Create a decorator `shout` that takes a function, and returns a new function that converts the original function's result to uppercase. Apply it to the `greet` function.", starterCode: "def shout(func):\n    def wrapper(*args, **kwargs):\n        result = func(*args, **kwargs)\n        return result.upper()\n    return wrapper\n\n@shout\ndef greet(name):\n    return f\"Hello, {name}\"\n\nprint(greet(\"World\"))" },
+                ]
+            },
+            {
+                module: "4. Data Structures in Depth",
+                lessons: [
+                    { id: 9, title: "Dictionary .get()", objective: "Use the `.get()` method to safely access dictionary keys.", prompt: "Using the `.get()` method, retrieve the value for the key \"city\". If the key doesn't exist, it should return \"Unknown\". Print the result.", starterCode: "person = {'name': 'John', 'age': 28}\nprint(person.get(\"city\", \"Unknown\"))" },
+                    { id: 10, title: "Set Operations", objective: "Find the elements that are in one set but not another.", prompt: "Find all the elements that are in `set_a` but not in `set_b`. Print the resulting set.", starterCode: "set_a = {1, 2, 3, 4, 5}\nset_b = {4, 5, 6, 7, 8}\nprint(set_a.difference(set_b))" },
+                ]
+            },
+            {
+                module: "5. Object-Oriented Programming",
+                lessons: [
+                    { id: 11, title: "Class vs Instance Variables", objective: "Understand the difference between class and instance variables.", prompt: "Complete the `Car` class. It should have a class variable `num_wheels` set to 4. The `__init__` method should set instance variables for `make` and `model`. Create two instances and print an instance variable from one and the class variable from the other.", starterCode: "class Car:\n    num_wheels = 4\n\n    def __init__(self, make, model):\n        self.make = make\n        self.model = model\n\ncar1 = Car(\"Toyota\", \"Corolla\")\ncar2 = Car(\"Honda\", \"Civic\")\n\nprint(car1.model)\nprint(car2.num_wheels)" },
+                    { id: 12, title: "Dunder Methods", objective: "Implement `__str__` and `__repr__` for a custom class.", prompt: "Complete the `Point` class. The `__str__` method should return a user-friendly string like `(x, y)`. The `__repr__` method should return a developer-friendly string like `Point(x=..., y=...)`.", starterCode: "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __str__(self):\n        return f\"({self.x}, {self.y})\"\n\n    def __repr__(self):\n        return f\"Point(x={self.x}, y={self.y})\"\n\np = Point(3, 4)\nprint(str(p))\nprint(repr(p))" },
+                ]
+            },
+             {
+                module: "6. Pythonic Features",
+                lessons: [
+                    { id: 13, title: "Context Managers", objective: "Create a simple context manager class.", prompt: "Complete the `Timer` context manager. The `__enter__` method should record the start time. The `__exit__` method should calculate and print the elapsed time.", starterCode: "import time\n\nclass Timer:\n    def __enter__(self):\n        self.start_time = time.time()\n        return self\n\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        end_time = time.time()\n        elapsed = end_time - self.start_time\n        print(f\"Elapsed time: {elapsed:.4f} seconds\")\n\nwith Timer():\n    time.sleep(0.5)" },
+                    { id: 14, title: "Generators & yield", objective: "Write a generator function to produce a sequence of values.", prompt: "Write a generator function `even_numbers` that `yield`s all even numbers up to a given `limit` (inclusive). Then, use a `for` loop to print the numbers generated for a limit of 10.", starterCode: "def even_numbers(limit):\n    for i in range(limit + 1):\n        if i % 2 == 0:\n            yield i\n\nfor num in even_numbers(10):\n    print(num)" },
+                ]
+            },
+            {
+                module: "7. Exception Handling",
+                lessons: [
+                    { id: 15, title: "Creating Custom Exceptions", objective: "Define and raise a custom exception.", prompt: "Create a custom exception class `ValueTooLowError`. Then, write a function `check_value` that raises this error if its input `n` is less than 10. Call the function with `n=5` inside a `try...except` block and print the error.", starterCode: "class ValueTooLowError(Exception):\n    pass\n\ndef check_value(n):\n    if n < 10:\n        raise ValueTooLowError(\"Value is too low\")\n\ntry:\n    check_value(5)\nexcept ValueTooLowError as e:\n    print(e)" },
+                ]
+            }
+        ];
+
+        let editor;
+        let currentLessonId = 1;
+        let completedLessons = [];
+        // The URL for the backend API. When deployed on Render,
+        // this relative URL will be correctly routed.
+        const API_URL = '/execute';
+
+        const appState = {
+            init() {
+                this.setupEditor();
+                this.loadProgress();
+                this.renderSidebar();
+                this.loadLesson(currentLessonId);
+                this.attachEventListeners();
+            },
+
+            setupEditor() {
+                editor = ace.edit("editor");
+                editor.setTheme("ace/theme/tomorrow");
+                editor.session.setMode("ace/mode/python");
+                editor.setOptions({
+                    fontSize: "14px",
+                    enableBasicAutocompletion: true,
+                    enableLiveAutocompletion: true,
+                });
+            },
+            
+            loadProgress() {
+                const savedProgress = localStorage.getItem('pythonRevisionProgress');
+                if (savedProgress) {
+                    completedLessons = JSON.parse(savedProgress);
+                }
+                currentLessonId = completedLessons.length > 0 ? Math.max(...completedLessons) + 1 : 1;
+                const totalLessons = curriculum.flatMap(m => m.lessons).length;
+                if (currentLessonId > totalLessons) {
+                    currentLessonId = totalLessons;
+                }
+            },
+
+            saveProgress() {
+                localStorage.setItem('pythonRevisionProgress', JSON.stringify(completedLessons));
+            },
+
+            renderSidebar() {
+                const nav = document.getElementById('lesson-nav');
+                nav.innerHTML = '';
+                curriculum.forEach(module => {
+                    const moduleDiv = document.createElement('div');
+                    moduleDiv.className = 'mb-4';
+                    
+                    const moduleTitle = document.createElement('h3');
+                    moduleTitle.className = 'text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2';
+                    moduleTitle.textContent = module.module;
+                    moduleDiv.appendChild(moduleTitle);
+
+                    const lessonList = document.createElement('ul');
+                    lessonList.className = 'space-y-1';
+                    
+                    module.lessons.forEach(lesson => {
+                        const isCompleted = completedLessons.includes(lesson.id);
+                        const isActive = lesson.id === currentLessonId;
+                        const isLocked = !isCompleted && lesson.id > currentLessonId;
+
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        a.href = '#';
+                        a.textContent = `${lesson.id}. ${lesson.title}`;
+                        a.className = 'block px-3 py-2 rounded-md text-sm transition-colors';
+                        a.dataset.lessonId = lesson.id;
+
+                        if (isLocked) {
+                            a.classList.add('sidebar-item-locked');
+                        } else {
+                             a.classList.add('hover:bg-gray-100');
+                        }
+                        if (isCompleted) a.classList.add('sidebar-item-completed');
+                        if (isActive) a.classList.add('sidebar-item-active', 'text-blue-700');
+                        
+                        li.appendChild(a);
+                        lessonList.appendChild(li);
+                    });
+                    moduleDiv.appendChild(lessonList);
+                    nav.appendChild(moduleDiv);
+                });
+            },
+
+            loadLesson(id) {
+                const lesson = this.getLessonById(id);
+                if (!lesson) return;
+
+                currentLessonId = id;
+                const lessonContentEl = document.getElementById('lesson-content');
+                lessonContentEl.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900">${lesson.title}</h2>
+                    <p class="text-gray-600 mb-1"><span class="font-semibold">Objective:</span> ${lesson.objective}</p>
+                    <p class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-blue-800 rounded-r-lg">${lesson.prompt}</p>
+                `;
+                editor.setValue(lesson.starterCode, -1);
+                document.getElementById('output-content').innerHTML = '<pre>Your code output will appear here.</pre>';
+                document.getElementById('next-lesson-button').classList.add('hidden');
+                this.renderSidebar();
+            },
+
+            getLessonById(id) {
+                for (const module of curriculum) {
+                    const lesson = module.lessons.find(l => l.id === id);
+                    if (lesson) return lesson;
+                }
+                return null;
+            },
+
+            attachEventListeners() {
+                document.getElementById('run-button').addEventListener('click', () => this.runCode());
+                document.getElementById('next-lesson-button').addEventListener('click', () => this.goToNextLesson());
+                document.getElementById('lesson-nav').addEventListener('click', (e) => {
+                    if (e.target.tagName === 'A' && e.target.dataset.lessonId) {
+                        e.preventDefault();
+                        const lessonId = parseInt(e.target.dataset.lessonId);
+                        if (!e.target.classList.contains('sidebar-item-locked')) {
+                            this.loadLesson(lessonId);
+                        }
+                    }
+                });
+            },
+
+            async runCode() {
+                const userCode = editor.getValue();
+                const outputEl = document.getElementById('output-content');
+                const runButton = document.getElementById('run-button');
+                
+                outputEl.innerHTML = '<pre>Running...</pre>';
+                runButton.disabled = true;
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: userCode }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    const { stdout, stderr } = result;
+
+                    const validationResult = this.validate(currentLessonId, userCode, stdout, stderr);
+                    
+                    let outputHtml = `<h3 class="text-gray-400 font-semibold mb-2">stdout:</h3><pre>${stdout || '(No output)'}</pre>`;
+                    if (stderr) {
+                        outputHtml += `<h3 class="text-red-400 font-semibold mt-4 mb-2">stderr:</h3><pre class="text-red-400">${stderr}</pre>`;
+                    }
+
+                    if (validationResult.correct) {
+                         outputHtml += `<div class="mt-4 pt-4 border-t border-gray-700 text-green-400 font-bold">✅ Correct! Well done.</div>`;
+                         document.getElementById('next-lesson-button').classList.remove('hidden');
+                         if (!completedLessons.includes(currentLessonId)) {
+                            completedLessons.push(currentLessonId);
+                            this.saveProgress();
+                            this.renderSidebar();
+                         }
+                    } else {
+                        outputHtml += `<div class="mt-4 pt-4 border-t border-gray-700 text-yellow-400 font-bold">❌ Incorrect. ${validationResult.feedback || 'Try again.'}</div>`;
+                        document.getElementById('next-lesson-button').classList.add('hidden');
+                    }
+                    outputEl.innerHTML = outputHtml;
+
+                } catch (e) {
+                    outputEl.innerHTML = `<h3 class="text-red-400 font-semibold mb-2">Error:</h3><pre class="text-red-400">Could not connect to the execution server. Please try again later.\n${e.message}</pre>`;
+                } finally {
+                    runButton.disabled = false;
+                }
+            },
+            
+            goToNextLesson() {
+                const totalLessons = curriculum.flatMap(m => m.lessons).length;
+                if (currentLessonId < totalLessons) {
+                    this.loadLesson(currentLessonId + 1);
+                } else {
+                    document.getElementById('lesson-content').innerHTML = `<h2 class="text-2xl font-bold mb-2">Congratulations!</h2><p>You have completed all the lessons.</p>`;
+                    document.getElementById('next-lesson-button').classList.add('hidden');
+                }
+            },
+
+            validate(lessonId, code, stdout, stderr) {
+                let correct = false;
+                let feedback = '';
+
+                if (stderr) {
+                    return { correct: false, feedback: "Your code produced an error." };
+                }
+                
+                const out = stdout.trim();
+                switch(lessonId) {
+                    case 1: correct = out.includes("<class 'int'>") && out.includes("<class 'float'>") && out.includes("<class 'str'>") && out.includes("<class 'bool'>"); break;
+                    case 2: correct = out.includes("hEllo") && out.includes("[1, 99, 3]"); if (!code.includes("#")) feedback = "Don't forget to add the comment."; break;
+                    case 3: correct = out === "True\nTrue"; break;
+                    case 4: correct = out === "[1, 9, 25]"; if (code.split('\n').length > 3) feedback = "Try to solve this using a single list comprehension line."; break;
+                    case 5: correct = out === "odd"; if (code.split('\n').length > 3) feedback = "Try to use a single-line ternary expression."; break;
+                    case 6: correct = out === "[1]\n[2]"; if (!code.includes('if items is None:')) feedback = "The standard fix is to check if the default argument is None."; break;
+                    case 7: correct = out === "Positional args: 3\nname = Alice\nage = 30"; break;
+                    case 8: correct = out === "HELLO, WORLD"; break;
+                    case 9: correct = out === "Unknown"; break;
+                    case 10: correct = out.includes("{1, 2, 3}") || out.includes("set([1, 2, 3])"); break;
+                    case 11: correct = out === "Corolla\n4"; break;
+                    case 12: correct = out === "(3, 4)\nPoint(x=3, y=4)"; break;
+                    case 13: correct = out.toLowerCase().includes("elapsed time") && parseFloat(out.split(':')[1]) > 0.4; break;
+                    case 14: correct = out === "0\n2\n4\n6\n8\n10"; break;
+                    case 15: correct = out.includes("Value is too low"); break;
+                    default: feedback = "Validation logic not implemented."; break;
+                }
+                
+                return { correct: correct, feedback: feedback };
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            appState.init();
+        });
+    </script>
+</body>
+</html>
