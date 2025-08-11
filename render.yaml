@@ -4,9 +4,8 @@
 services:
   # 1. The Front-End Static Site
   # This service serves your index.html file and other static assets.
-  - type: static
+  - type: static_site
     name: python-revision-frontend
-    # The directory, relative to the project root, that contains the static files.
     staticPublishPath: ./frontend
     routes:
       # Rewrites all requests to index.html to support a single-page app.
@@ -19,10 +18,8 @@ services:
   - type: web
     name: python-revision-api
     runtime: python
-    # Command to install dependencies from requirements.txt.
     buildCommand: "pip install -r requirements.txt"
-    # Command to start the production server using Gunicorn.
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.4
+        value: 3.9
