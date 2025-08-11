@@ -1,0 +1,7 @@
+# requirements.txt
+# Lists the Python packages required by the backend server.
+# Render uses this file to install dependencies.
+
+Flask
+gunicorn
+Flask-Cors
