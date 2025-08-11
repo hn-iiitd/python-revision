@@ -1,12 +1,9 @@
-# This is the definitive render.yaml for deploying the Python revision app.
-# It defines two services: a static site for the frontend and a web service for the backend.
-
 services:
   # Service 1: The Frontend Static Site
   - type: web
     name: python-revision-frontend
-    env: static
-    staticPublishPath: frontend
+    runtime: static
+    publishPath: ./frontend # Corrected key
     routes:
       - type: rewrite
         source: /*
@@ -15,9 +12,9 @@ services:
   # Service 2: The Backend Python API
   - type: web
     name: python-revision-api
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    runtime: python # Corrected key
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4
