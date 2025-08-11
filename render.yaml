@@ -6,9 +6,9 @@
 
 services:
   # 1. The Front-End Static Site
-  - type: static
+  - type: web # <-- This is the main change
     name: python-revision-frontend
-    # Correctly indented and spelled 'publishPath'
+    runtime: static # <-- This tells Render it's a static site
     publishPath: ./frontend 
     routes:
       - type: rewrite
@@ -28,4 +28,5 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4 # Specifies the Python version for Render to use.
+
 
