@@ -1,25 +1,26 @@
-# Free-tier friendly render.yaml for Python revision app
+# This is the definitive render.yaml for deploying the Python revision app.
+# It defines two services: a static site for the frontend and a web service for the backend.
 
 services:
-  # Frontend (Static Site) - Free Instance
+  # Service 1: The Frontend Static Site
+  # The type is 'web' and the runtime is 'static'.
   - type: web
     name: python-revision-frontend
-    env: static
-    plan: starter
-    buildCommand: npm install && npm run build
-    staticPublishPath: frontend/build
+    runtime: static
+    # The directory, relative to the project root, that contains the static files.
+    publishPath: ./frontend
     routes:
+      # Rewrites all requests to index.html to support a single-page app.
       - type: rewrite
         source: /*
         destination: /index.html
 
-  # Backend (Python API) - Free Instance
+  # Service 2: The Backend Python API
   - type: web
     name: python-revision-api
-    env: python
-    plan: starter
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4
