@@ -2,18 +2,19 @@
 # This file defines the services for Render.
 # It sets up a static site for the frontend and a web service for the Python backend.
 
+# render.yaml
+
 services:
   # 1. The Front-End Static Site
-  # This service serves your index.html file.
   - type: static
     name: python-revision-frontend
-    # The 'frontend' directory should contain your index.html file.
-    staticPublishPath: ./frontend
-    # Rewrites all paths to index.html to support single-page application routing.
+    # Correctly indented and spelled 'publishPath'
+    publishPath: ./frontend 
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+
 
   # 2. The Back-End Python API
   # This service runs your Flask application.
@@ -27,3 +28,4 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.4 # Specifies the Python version for Render to use.
+
