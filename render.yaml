@@ -2,18 +2,21 @@
 # It defines two services: a static site for the frontend and a web service for the backend.
 
 services:
-    - type: static
+  # Service 1: The Frontend Static Site
+  - type: static
     name: python-revision-frontend
     staticPublishPath: ./frontend
     routes:
       - type: rewrite
-      source: /*
-      destination: /index.html
-    - type: web
+        source: /*
+        destination: /index.html
+
+  # Service 2: The Backend Python API
+  - type: web
     name: python-revision-api
     runtime: python
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
     envVars:
-        - key: PYTHON_VERSION
+      - key: PYTHON_VERSION
         value: 3.11.4
