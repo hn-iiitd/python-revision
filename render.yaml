@@ -6,7 +6,8 @@ services:
     name: python-revision-frontend
     env: static
     plan: starter
-    staticPublishPath: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: frontend/build
     routes:
       - type: rewrite
         source: /*
