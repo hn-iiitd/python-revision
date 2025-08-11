@@ -1,32 +1,28 @@
 # render.yaml
-# This file defines the services for Render.
-# It sets up a static site for the frontend and a web service for the Python backend.
-
-# render.yaml
+# Defines the services for Render to deploy.
 
 services:
   # 1. The Front-End Static Site
-  - type: web # <-- This is the main change
+  # This service serves your index.html file and other static assets.
+  - type: static
     name: python-revision-frontend
-    runtime: static # <-- This tells Render it's a static site
-    publishPath: ./frontend 
+    # The directory, relative to the project root, that contains the static files.
+    staticPublishPath: ./frontend
     routes:
+      # Rewrites all requests to index.html to support a single-page app.
       - type: rewrite
         source: /*
         destination: /index.html
 
-
   # 2. The Back-End Python API
-  # This service runs your Flask application.
+  # This service runs the Flask application to execute code.
   - type: web
     name: python-revision-api
     runtime: python
     # Command to install dependencies from requirements.txt.
     buildCommand: "pip install -r requirements.txt"
-    # Command to start the production server.
+    # Command to start the production server using Gunicorn.
     startCommand: "gunicorn app:app"
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.4 # Specifies the Python version for Render to use.
-
-
+        value: 3.11.4
