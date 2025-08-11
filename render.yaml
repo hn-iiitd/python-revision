@@ -1,21 +1,8 @@
-# This is the definitive render.yaml for deploying the Python revision app.
-# It defines two services: a static site for the frontend and a web service for the backend.
+# This is the definitive render.yaml for deploying the Python revision app's backend.
+# It defines a single web service to run the Python API.
 
 services:
-  # Service 1: The Frontend Static Site
-  # The type is 'web' and the runtime is 'static'.
-  - type: web
-    name: python-revision-frontend
-    runtime: static
-    # The directory, relative to the project root, that contains the static files.
-    publishPath: ./frontend
-    routes:
-      # Rewrites all requests to index.html to support a single-page app.
-      - type: rewrite
-        source: /*
-        destination: /index.html
-
-  # Service 2: The Backend Python API
+  # Service: The Backend Python API
   - type: web
     name: python-revision-api
     runtime: python
